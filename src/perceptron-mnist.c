@@ -18,10 +18,9 @@ void perceptron_mnist_init(Perceptron *perceptron) {
         perceptron->bias_h[i] = -0.5f;
     }
 
-    // Initialisation des poids entre couche cachée et sortie
     for (int i = 0; i < OUTPUT_SIZE; i++) {
         for (int j = 0; j < HIDDEN_SIZE; j++) {
-            perceptron->weights_ho[i][j] = ((float)rand() / RAND_MAX) / INPUT_SIZE; // [0, 1]
+            perceptron->weights_ho[i][j] = ((float)rand() / RAND_MAX) / INPUT_SIZE;
         }
         perceptron->bias_o[i] = -0.5f;
     }
@@ -46,7 +45,6 @@ float sigmoid_derivative(const float s) {
 }
 
 void perceptron_mnist_neuron_propagation(const Perceptron *perceptron, const float input[INPUT_SIZE], float hidden_output[HIDDEN_SIZE], float output[OUTPUT_SIZE]) {
-    // Calcul des sorties de la couche cachée
     for (int i = 0; i < HIDDEN_SIZE; i++) {
         float sum = perceptron->bias_h[i];
         for (int j = 0; j < INPUT_SIZE; j++) {
@@ -55,7 +53,6 @@ void perceptron_mnist_neuron_propagation(const Perceptron *perceptron, const flo
         hidden_output[i] = sigmoid(sum);
     }
 
-    // Calcul des sorties du réseau
     for (int i = 0; i < OUTPUT_SIZE; i++) {
         float sum = perceptron->bias_o[i];
         for (int j = 0; j < HIDDEN_SIZE; j++) {
@@ -70,7 +67,7 @@ int perceptron_mnist_learning(Perceptron* perceptron, const Mnist_Image* input, 
     float target[OUTPUT_SIZE] = {0};
     target[input->label] = 1.0;
 
-    // Calcul de l'erreur sur la couche de sortie
+    // Calculation of the error on the output layer
     float output_delta[OUTPUT_SIZE];
     float erreur_totale = 0.0;
     for (int i = 0; i < OUTPUT_SIZE; i++) {
@@ -79,7 +76,7 @@ int perceptron_mnist_learning(Perceptron* perceptron, const Mnist_Image* input, 
         output_delta[i] = error * sigmoid_derivative(output[i]); // f'(x) = f(x) * (1 - f(x))
     }
 
-    // Calcul de l'erreur sur la couche cachée
+    // Calculation of the hidden layer error
     float hidden_delta[HIDDEN_SIZE];
     for (int i = 0; i < HIDDEN_SIZE; i++) {
         float error = 0.0;
@@ -89,7 +86,7 @@ int perceptron_mnist_learning(Perceptron* perceptron, const Mnist_Image* input, 
         hidden_delta[i] = error * sigmoid_derivative(hidden_output[i]); // f'(x) = f(x) * (1 - f(x))
     }
 
-    // Mise à jour des poids entre couche cachée et sortie
+    // Updating weights between hidden layer and output
     for (int i = 0; i < OUTPUT_SIZE; i++) {
         perceptron->bias_o[i] += perceptron->learning_rate * output_delta[i];
         for (int j = 0; j < HIDDEN_SIZE; j++) {
@@ -97,7 +94,7 @@ int perceptron_mnist_learning(Perceptron* perceptron, const Mnist_Image* input, 
         }
     }
 
-    // Mise à jour des poids entre entrée et couche cachée
+    // Updating weights between input and hidden layer
     for (int i = 0; i < HIDDEN_SIZE; i++) {
         perceptron->bias_h[i] += perceptron->learning_rate * hidden_delta[i];
         for (int j = 0; j < INPUT_SIZE; j++) {
@@ -105,62 +102,9 @@ int perceptron_mnist_learning(Perceptron* perceptron, const Mnist_Image* input, 
         }
     }
 
-    // Retour: 1 si erreur significative, 0 sinon
+    // Return: 1 if significant error, 0 otherwise
     return (erreur_totale > 0.1) ? 1 : 0;
 }
-
-/*
-int perceptron_mnist_backpropagation(Perceptron *perceptron, Mnist_Image* image) {
-
-    // Création du vecteur de sortie désirée (one-hot)
-    float target[OUTPUT_SIZE] = {0};
-    target[image->label] = 1.0;
-
-    // Forward pass
-    float hidden_output[HIDDEN_SIZE];
-    float output[OUTPUT_SIZE];
-    perceptron_mnist_neuron_propagation(perceptron, image->image, hidden_output, output);
-
-    // Calcul de l'erreur sur la couche de sortie
-    float output_delta[OUTPUT_SIZE];
-    float erreur_totale = 0.0;
-    for (int i = 0; i < OUTPUT_SIZE; i++) {
-        float error = target[i] - output[i];
-        erreur_totale += fabs(error);
-        output_delta[i] = error * output[i] * (1.0 - output[i]); // f'(x) = f(x) * (1 - f(x))
-    }
-
-    // Calcul de l'erreur sur la couche cachée
-    float hidden_delta[HIDDEN_SIZE];
-    for (int i = 0; i < HIDDEN_SIZE; i++) {
-        float error = 0.0;
-        for (int j = 0; j < OUTPUT_SIZE; j++) {
-            error += output_delta[j] * perceptron->weights_ho[j][i];
-        }
-        hidden_delta[i] = error * hidden_output[i] * (1.0 - hidden_output[i]); // f'(x) = f(x) * (1 - f(x))
-    }
-
-    // Mise à jour des poids entre couche cachée et sortie
-    for (int i = 0; i < OUTPUT_SIZE; i++) {
-        perceptron->bias_o[i] += perceptron->learning_rate * output_delta[i];
-        for (int j = 0; j < HIDDEN_SIZE; j++) {
-            perceptron->weights_ho[i][j] += perceptron->learning_rate * output_delta[i] * hidden_output[j];
-        }
-    }
-
-    // Mise à jour des poids entre entrée et couche cachée
-    for (int i = 0; i < HIDDEN_SIZE; i++) {
-        perceptron->bias_h[i] += perceptron->learning_rate * hidden_delta[i];
-        for (int j = 0; j < INPUT_SIZE; j++) {
-            perceptron->weights_ih[i][j] += perceptron->learning_rate * hidden_delta[i] * image_input[j];
-        }
-    }
-
-    // Retour: 1 si erreur significative, 0 sinon
-    return (erreur_totale > 0.1) ? 1 : 0;
-}
-*/
-
 
 float perceptron_mnist_testing(Perceptron *perceptron, int nb_test_images) {
     int correct = 0;
@@ -168,7 +112,6 @@ float perceptron_mnist_testing(Perceptron *perceptron, int nb_test_images) {
     int used_indexes[NUM_TEST] = {0}; // Pour éviter de réutiliser les mêmes images
 
     for (int i = 0; i < test_size; i++) {
-        //MnistImage *image = obtenir_image_test(i);
 
         int index;
         do {
@@ -179,13 +122,10 @@ float perceptron_mnist_testing(Perceptron *perceptron, int nb_test_images) {
 
         Mnist_Image* image = &test_image[index];
 
-
-        // Forward pass
         float hidden_out[HIDDEN_SIZE];
         float output[OUTPUT_SIZE];
         perceptron_mnist_neuron_propagation(perceptron, image->image, hidden_out, output);
 
-        // Trouver la classe prédite (indice du neurone avec la plus grande activation)
         int prediction = 0;
         float max_activation = output[0];
         for (int j = 1; j < OUTPUT_SIZE; j++) {
@@ -215,7 +155,6 @@ void perceptron_mnist_draw_training_plot_precision() {
     fprintf(script_gnuplot, "set ylabel 'Precision'\n");
     fprintf(script_gnuplot, "set grid\n");
     fprintf(script_gnuplot, "set key top left\n");
-    //fprintf(script_gnuplot, "set xtics 1,2\n");
     fprintf(script_gnuplot, "plot [1:*] [0:1] '../result/training.dat' using 1:2 with line title 'Training precision'\n");
     fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
@@ -241,7 +180,6 @@ void perceptron_mnist_draw_training_plot_error() {
     fprintf(script_gnuplot, "set ylabel 'Error'\n");
     fprintf(script_gnuplot, "set grid\n");
     fprintf(script_gnuplot, "set key top left\n");
-    //fprintf(script_gnuplot, "set xtics 1,2\n");
     fprintf(script_gnuplot, "plot [1:*] [0:*] '../result/training.dat' using 1:3 with line title 'Training errors'\n");
     fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
@@ -277,13 +215,13 @@ void perceptron_mnist_training(Perceptron* perceptron, const int epochs) {
             perceptron_mnist_neuron_propagation(perceptron, image->image, hidden_output, output);
             errors += perceptron_mnist_learning(perceptron, image, hidden_output, output);
         }
-        // Test de précision à la fin de chaque époque
+
         precision = perceptron_mnist_testing(perceptron, 1500); // Tester sur 1000 images
         printf("Epoch %d/%d terminée, Erreurs: %d/%d, Précision test: %.2f%%\n",
                epoch, epochs, errors, NB_ITERATIONS_IN_EPOCH,precision * 100);
 
         fprintf(file, "%d %f %d\n", epoch, precision, errors);
-        // Si précision supérieure à 96%, on peut arrêter
+
         if (precision >= TARGETED_PRECISION) {
             printf("Objectif de précision atteint, arrêt de l'entraînement.\n");
         }
@@ -300,12 +238,10 @@ float perceptron_mnist_testing_all(const Perceptron *perceptron) {
     for (int i = 0; i < NUM_TEST; i++) {
         Mnist_Image* image = &test_image[i];
 
-        // Forward pass
         float hidden_out[HIDDEN_SIZE];
         float output[OUTPUT_SIZE];
         perceptron_mnist_neuron_propagation(perceptron, image->image, hidden_out, output);
 
-        // Trouver la classe prédite (indice du neurone avec la plus grande activation)
         int prediction = 0;
         float max_activation = output[0];
         for (int j = 1; j < OUTPUT_SIZE; j++) {

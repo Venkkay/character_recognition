@@ -11,7 +11,6 @@
 #include <time.h>
 #include <unistd.h>
 
-// Perceptron initialization with random weights
 void perceptron_2c_simple_init_perceptron(Perceptron_2c_simple *p, const int choice_weight_init) {
     for (int i = 0; i < NB_PIXELS; i++) {
         if (choice_weight_init == 1) {
@@ -118,9 +117,7 @@ void perceptron_2c_simple_draw_training_plot() {
     fprintf(script_gnuplot, "set ylabel 'Total error'\n");
     fprintf(script_gnuplot, "set grid\n");
     fprintf(script_gnuplot, "set key top left\n");
-    //fprintf(script_gnuplot, "set xtics 1,2\n");
     fprintf(script_gnuplot, "plot [1:*] [0:2] '../result/training.dat' using 1:2 with line title 'Training total errors'\n");
-    fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
 
     char commande[256];
@@ -135,25 +132,20 @@ void perceptron_2c_simple_draw_training_plot() {
     printf("Graph generated. A gnuplot window should open.\n");
 }
 
-// Function to calculate distance to hyperplane
 double perceptron_2c_simple_distance_a_hyperplan(Perceptron_2c_simple *perceptron, Pattern_2c_simple *pattern) {
     float potentiel = 0.0f;
     float norme_poids = 0.0f;
 
-    // Calcul du potentiel
     for (int i = 0; i < NB_PIXELS; i++) {
         potentiel += perceptron->weights[i] * (float)pattern->pixels[i];
         norme_poids += perceptron->weights[i] * perceptron->weights[i];
     }
 
-    // On ajoute le biais
     potentiel += perceptron->theta;
     norme_poids += perceptron->theta * perceptron->theta;
 
-    // Distance = |potentiel| / ||w||
     return fabs(potentiel) / sqrt(norme_poids);
 }
-
 
 void perceptron_2c_simple_train_perceptron(Perceptron_2c_simple *perceptron) {
     Pattern_2c_simple pattern;
@@ -296,7 +288,6 @@ void perceptron_2c_simple_draw_generalisation_plot(const GeneralisationResult_2c
 
     fprintf(script_gnuplot, "plot '../result/generalisation.dat' using 1:2 with lines title 'Pattern 0', ");
     fprintf(script_gnuplot, "'../result/generalisation.dat' using 1:3 with lines title 'Pattern 1'\n");
-    fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
 
     char commande[256];

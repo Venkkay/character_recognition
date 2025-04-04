@@ -74,40 +74,11 @@ int perceptron_10c_load_pattern(char *filename, Pattern_10c *pattern) {
 }
 
 int perceptron_10c_load_random_pattern(Pattern_10c *pattern) {
-    //char *filenames[NB_CLASSES] = {"zero.txt", "un.txt", "deux.txt", "trois.txt", "quatre.txt", "cinq.txt", "six.txt", "sept.txt", "huit.txt", "neuf.txt"};
     const int choice = rand() % NB_CLASSES;
 
     printf("Choice: %d\n", choice);
 
     return perceptron_10c_load_pattern(filenames[choice], pattern);
-
-    /*
-    switch (choice) {
-        case 0:
-            return perceptron_10c_load_pattern("zero.txt", pattern);
-        case 1:
-            return perceptron_10c_load_pattern("un.txt", pattern);
-        case 2:
-            return perceptron_10c_load_pattern("deux.txt", pattern);
-        case 3:
-            return perceptron_10c_load_pattern("trois.txt", pattern);
-        case 4:
-            return perceptron_10c_load_pattern("quatre.txt", pattern);
-        case 5:
-            return perceptron_10c_load_pattern("cinq.txt", pattern);
-        case 6:
-            return perceptron_10c_load_pattern("six.txt", pattern);
-        case 7:
-            return perceptron_10c_load_pattern("sept.txt", pattern);
-        case 8:
-            return perceptron_10c_load_pattern("huit.txt", pattern);
-        case 9:
-            return perceptron_10c_load_pattern("neuf.txt", pattern);
-        default:
-            printf("Error: unable to select a pattern\n");
-            return 0;
-    }
-    */
 }
 
 int perceptron_10c_activation_function(const double potentials[NB_CLASSES]) {
@@ -168,9 +139,7 @@ void perceptron_10c_draw_training_plot() {
     fprintf(script_gnuplot, "set ylabel 'Total error'\n");
     fprintf(script_gnuplot, "set grid\n");
     fprintf(script_gnuplot, "set key top left\n");
-    //fprintf(script_gnuplot, "set xtics 1,2\n");
     fprintf(script_gnuplot, "plot [1:*] [0:2] '../result/training.dat' using 1:2 with line title 'Training total errors'\n");
-    fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
 
     char commande[256];
@@ -189,7 +158,6 @@ void perceptron_10c_draw_training_plot() {
 void perceptron_10c_training(Perceptron_10c *perceptron) {
     Pattern_10c pattern;
     double potentials[NB_CLASSES];
-    //OutputNeuron outputs[NB_CLASSES];
     double total_error;
     int iteration = 0;
     for (int i = 0; i < NB_CLASSES; i++) {
@@ -208,7 +176,6 @@ void perceptron_10c_training(Perceptron_10c *perceptron) {
         perceptron_10c_load_random_pattern(&pattern);
         perceptron_10c_calculate_potential(perceptron, &pattern, potentials);
         total_error = perceptron_10c_learning(perceptron, &pattern, potentials);
-
 
         printf("Iteration %d, total error: %f\n", iteration, total_error);
 
@@ -341,7 +308,6 @@ void perceptron_10c_draw_generalisation_plot(const GeneralisationResult_10c *res
         fprintf(script_gnuplot, ", '../result/generalisation.dat' using 1:%d with lines title 'Pattern %d'", i+2, i);
     }
     fprintf(script_gnuplot, "\n");
-    fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
 
     char commande[256];
@@ -368,8 +334,6 @@ void perceptron_10c_create_generalisation_graph(const Perceptron_10c *perceptron
         for (int j = 0; j < NB_CLASSES; j++) {
             results[i].error_rates[j] = perceptron_10c_test_pattern_generalisation(perceptron, filenames[j], noise_percentage, nb_tests_per_point);
         }
-
-        //printf("Noise %.1f%%: Error rate '0' = %.2f%%, Error rate '1' = %.2f%%\n", noise_percentage, zero_error_rate, one_error_rate);
     }
 
     printf("\nDrawing generalisation curves...\n");

@@ -10,7 +10,6 @@
 #include <time.h>
 #include <unistd.h>
 
-// Perceptron initialization with random weights
 void perceptron_2c_wh_init_perceptron(Perceptron_2c_wh *p, const int choice_weight_init) {
 
     for (int i = 0; i < NB_PIXELS; i++) {
@@ -119,7 +118,6 @@ void perceptron_2c_wh_draw_training_plot() {
     fprintf(script_gnuplot, "set grid\n");
     fprintf(script_gnuplot, "set key top left\n");
     fprintf(script_gnuplot, "plot [1:*] [0:2] '../result/training.dat' using 1:2 with line title 'Training total errors'\n");
-    fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
 
     char commande[256];
@@ -134,7 +132,6 @@ void perceptron_2c_wh_draw_training_plot() {
     printf("Graph generated. A gnuplot window should open.\n");
 }
 
-// Function to calculate distance to hyperplane
 double perceptron_2c_wh_distance_a_hyperplan(Perceptron_2c_wh *perceptron, Pattern_2c_wh *pattern) {
     float potentiel = 0.0f;
     float norme_poids = 0.0f;
@@ -149,7 +146,6 @@ double perceptron_2c_wh_distance_a_hyperplan(Perceptron_2c_wh *perceptron, Patte
 
     return fabs(potentiel) / sqrt(norme_poids);
 }
-
 
 void perceptron_2c_wh_train_perceptron(Perceptron_2c_wh *perceptron, int max_iterations) {
     Pattern_2c_wh pattern;
@@ -292,7 +288,6 @@ void perceptron_2c_wh_draw_generalisation_plot(const GeneralisationResult_2c_wh 
 
     fprintf(script_gnuplot, "plot '../result/generalisation.dat' using 1:2 with lines title 'Pattern 0', ");
     fprintf(script_gnuplot, "'../result/generalisation.dat' using 1:3 with lines title 'Pattern 1'\n");
-    fprintf(script_gnuplot, "pause -1 'Appuyez sur une touche pour continuer...'\n");
     fclose(script_gnuplot);
 
     char commande[256];
@@ -321,16 +316,14 @@ void perceptron_2c_wh_create_generalisation_graph(const Perceptron_2c_wh *percep
         results[i].noise_percent = noise_percentage;
         results[i].zero_error_rate = zero_error_rate;
         results[i].one_error_rate = one_error_rate;
-
-        //printf("Noise %.1f%%: Error rate '0' = %.2f%%, Error rate '1' = %.2f%%\n", noise_percentage, zero_error_rate, one_error_rate);
     }
 
     printf("\nDrawing generalisation curves...\n");
     perceptron_2c_wh_draw_generalisation_plot(results, nb_points);
 }
-// Fonction pour afficher les poids, incluant le biais
+
 void perceptron_2c_wh_display_weights(Perceptron_2c_wh *p){
-    printf("Poids du réseau:\n");
+    printf("Network weights:\n");
 
     int indice = 0;
     for (int h = 0; h < HEIGHT; h++) {
@@ -340,7 +333,7 @@ void perceptron_2c_wh_display_weights(Perceptron_2c_wh *p){
         printf("\n");
     }
 
-    printf("Biais: %6.3f\n", p->theta);
+    printf("Bias: %6.3f\n", p->theta);
 }
 
 
